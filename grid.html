@@ -1,0 +1,122 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
+
+
+<script type="text/javascript">
+const gridSize = 10;
+const cellSize = 50;
+const lineLength = 30;
+const lineThickness = 3;
+const dotSize = 3;
+
+const config = {
+  type: Phaser.AUTO,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  scene: {
+    preload: preload,
+    create: create,
+    update: update
+  }
+};
+
+const game = new Phaser.Game(config);
+
+function preload() {
+  const size = 20;
+  const canvasTexture = this.textures.createCanvas('avatar', size, Math.sqrt(3) * size / 2).source[0].image;
+  const context = canvasTexture.getContext('2d');
+  context.beginPath();
+  context.moveTo(size / 2, 0);
+  context.lineTo(size, size * Math.sqrt(3) / 2);
+  context.lineTo(0, size * Math.sqrt(3) / 2);
+  context.closePath();
+  context.strokeStyle = 'black';
+  context.lineWidth = 2;
+  context.stroke();
+  context.fillStyle = 'yellow';
+  context.fill();
+}
+
+function create() {
+  this.cameras.main.setBackgroundColor('#ffffff');
+
+  const offsetX = (this.cameras.main.width - (gridSize * cellSize)) / 2;
+  const offsetY = (this.cameras.main.height - (gridSize * cellSize)) / 2;
+
+  this.lines = [];
+
+  for (let i = 0; i < gridSize; i++) {
+  for (let j = 0; j < gridSize; j++) {
+    const x = offsetX + i * cellSize;
+    const y = offsetY + j * cellSize;
+
+    const directions = ['N', 'E', 'S', 'W'];
+    const direction = directions[Phaser.Math.Between(0, 3)];
+    const color = new Phaser.Display.Color();
+    color.random(1);
+
+    let line1 = this.add.line(x, y, 0, 0, 0, 0, color.color).setLineWidth(lineThickness).setOrigin(0, 0.5);
+    let line2 = this.add.line(x, y, 0, 0, 0, 0, color.color).setLineWidth(lineThickness).setOrigin(0, 0.5);
+
+    switch (direction) {
+      case 'N':
+        line1.setTo(0, 0, 0, -lineLength);
+        line2.setTo(0, 0, lineLength, 0);
+        break;
+      case 'E':
+        line1.setTo(0, 0, lineLength, 0);
+        line2.setTo(0, 0, 0, lineLength);
+        break;
+      case 'S':
+        line1.setTo(0, 0, 0, lineLength);
+        line2.setTo(0, 0, -lineLength, 0);
+        break;
+      case 'W':
+        line1.setTo(0, 0, -lineLength, 0);
+        line2.setTo(0, 0, 0, -lineLength);
+        break;
+    }
+
+    this.lines.push(line1);
+    this.lines.push(line2);
+  }
+}
+
+  for (let i = 0; i < gridSize; i++) {
+    for (let j = 0; j < gridSize; j++) {
+      const x = offsetX + i * cellSize;
+      const y = offsetY + j * cellSize;
+      this.add.circle(x, y, dotSize, 0x000000);
+    }
+  }
+
+  this.avatar = this.add.image(offsetX + gridSize * cellSize / 2, offsetY + gridSize * cellSize / 2, 'avatar');
+
+  this.cursors = this.input.keyboard.addKeys({
+    up: 'W',
+    down: 'S',
+    left: 'A',
+    right: 'D'
+  });
+}
+
+function update() {
+  this.lines.forEach(line => {
+    line.angle += 1;
+  });
+
+  if (this.cursors.up.isDown) {
+    this.avatar.y -= 2;
+  }
+  if (this.cursors.down.isDown) {
+    this.avatar.y += 2;
+  }
+  if (this.cursors.left.isDown) {
+    this.avatar.x -= 2;
+  }
+  if (this.cursors.right.isDown) {
+    this.avatar.x += 2;
+  }
+}
+
+</script>
