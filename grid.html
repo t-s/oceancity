@@ -1,11 +1,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 
 <script type="text/javascript">
+const minDimension = Math.min(window.innerWidth, window.innerHeight);
+const cellSize = minDimension / 12; // Adjust the divisor to fit the grid comfortably
+
 const gridSize = 10;
-const cellSize = 50;
-const lineLength = 30;
-const lineThickness = 3;
-const dotSize = 3;
+const lineLength = cellSize * 0.6;
+const lineThickness = cellSize * 0.06;
+const dotSize = cellSize * 0.06;
+const padding = cellSize * 0.1;
 
 let lastRotationTime = 0;
 
