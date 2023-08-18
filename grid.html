@@ -1,12 +1,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 
-
 <script type="text/javascript">
 const gridSize = 10;
 const cellSize = 50;
 const lineLength = 30;
 const lineThickness = 3;
 const dotSize = 3;
+
+let lastRotationTime = 0;
 
 const config = {
   type: Phaser.AUTO,
@@ -90,32 +91,54 @@ function create() {
     }
   }
 
+  const padding = 10; // Adjust this value to change the padding around the box
+
+// Adjust the size and position of the rectangle to add padding
+const avatarX = offsetX + padding;
+const avatarY = offsetY + (gridSize - 2) * cellSize + padding;
+const avatarWidth = cellSize - 2 * padding;
+const avatarHeight = cellSize - 2 * padding;
+
+// Draw the player avatar as a black square, with padding
+this.add.rectangle(avatarX, avatarY, avatarWidth, avatarHeight, 0x000000).setOrigin(0, 0);
+
+
+  // Existing code for the yellow triangle avatar; you can remove this if not needed
   this.avatar = this.add.image(offsetX + gridSize * cellSize / 2, offsetY + gridSize * cellSize / 2, 'avatar');
 
-  this.cursors = this.input.keyboard.addKeys({
-    up: 'W',
-    down: 'S',
-    left: 'A',
-    right: 'D'
+  // Create a rectangle for hover effect, initially invisible
+  this.hoverRectangle = this.add.rectangle(0, 0, cellSize, cellSize, 0xadd8e6, 0.3);
+  this.hoverRectangle.setOrigin(0, 0);
+  this.hoverRectangle.visible = false;
+
+  // Add a mouse move listener
+  this.input.on('pointermove', pointer => {
+    const x = pointer.x - offsetX;
+    const y = pointer.y - offsetY;
+    const i = Math.floor(x / cellSize);
+    const j = Math.floor(y / cellSize);
+    if (i >= 0 && i < gridSize - 1 && j >= 0 && j < gridSize - 1) {
+      this.hoverRectangle.x = offsetX + i * cellSize;
+      this.hoverRectangle.y = offsetY + j * cellSize;
+      this.hoverRectangle.visible = true;
+    } else {
+      this.hoverRectangle.visible = false;
+    }
   });
 }
 
-function update() {
-  this.lines.forEach(line => {
-    line.angle += 1;
-  });
+function update(time) {
+  const elapsedTime = time - lastRotationTime;
 
-  if (this.cursors.up.isDown) {
-    this.avatar.y -= 2;
-  }
-  if (this.cursors.down.isDown) {
-    this.avatar.y += 2;
-  }
-  if (this.cursors.left.isDown) {
-    this.avatar.x -= 2;
-  }
-  if (this.cursors.right.isDown) {
-    this.avatar.x += 2;
+  // Check if a second has passed
+  if (elapsedTime >= 1000) {
+    // Rotate each line by 90 degrees
+    this.lines.forEach(line => {
+      line.angle += 90;
+    });
+
+    // Update the last rotation time
+    lastRotationTime = time;
   }
 }
 
