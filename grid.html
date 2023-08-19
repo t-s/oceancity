@@ -104,6 +104,8 @@ avatarY = offsetY + (gridSize - 1) * cellSize;
 this.playerAvatar = this.add.rectangle(avatarX, avatarY, cellSize, cellSize, 0x000000);
 this.playerAvatar.setOrigin(0, 0);
 
+this.neighborSquares = this.add.group();
+
 const avatarWidth = cellSize - 2 * padding;
 const avatarHeight = cellSize - 2 * padding;
 
@@ -152,6 +154,33 @@ function update(time) {
 
   this.playerAvatar.x = avatarX;
   this.playerAvatar.y = avatarY;
+
+  this.neighborSquares.clear(true, true);
+
+  const i = (avatarX - (this.cameras.main.width - (gridSize * cellSize)) / 2) / cellSize;
+  const j = (avatarY - (this.cameras.main.height - (gridSize * cellSize)) / 2) / cellSize;
+
+  // Add neighbor squares
+  const neighbors = [
+    { x: i - 1, y: j },
+    { x: i + 1, y: j },
+    { x: i, y: j - 1 },
+    { x: i, y: j + 1 }
+  ];
+  
+  for (const neighbor of neighbors) {
+    if (neighbor.x >= 0 && neighbor.x < gridSize && neighbor.y >= 0 && neighbor.y < gridSize) {
+      const square = this.add.rectangle(
+        (this.cameras.main.width - (gridSize * cellSize)) / 2 + neighbor.x * cellSize,
+        (this.cameras.main.height - (gridSize * cellSize)) / 2 + neighbor.y * cellSize,
+        cellSize,
+        cellSize,
+        0xadd8e6
+      );
+      square.setOrigin(0, 0);
+      this.neighborSquares.add(square);
+    }
+  }
 }
 
 </script>
