@@ -5,8 +5,10 @@ const minDimension = Math.min(window.innerWidth, window.innerHeight);
 const cellSize = minDimension / 12; 
 
 const gridSize = 10;
+
 const lineLength = cellSize * 0.6;
 const lineThickness = cellSize * 0.06;
+
 const dotSize = cellSize * 0.06;
 const padding = cellSize * 0.1;
 
@@ -87,20 +89,20 @@ function create() {
     }
   }
 
-  const padding = 10; 
-
   avatarX = offsetX;
   avatarY = offsetY + (gridSize - 1) * cellSize;
-
-  this.neighborSquares = this.add.group();
 
   const avatarWidth = cellSize - 2 * padding;
   const avatarHeight = cellSize - 2 * padding;
 
-  this.playerAvatar = this.add.rectangle(avatarX + padding, avatarY + padding, avatarWidth, avatarHeight, 0x000000);
+  this.playerAvatar = this.add.rectangle(avatarX + padding, avatarY + padding,
+                                         avatarWidth, avatarHeight, 
+                                         0x000000);
   this.playerAvatar.setOrigin(0, 0);
-  
-  this.hoverRectangle = this.add.rectangle(0, 0, cellSize, cellSize, 0xadd8e6, 0.3);
+
+  this.hoverRectangle = this.add.rectangle(0, 0, 
+                                           cellSize, cellSize, 
+                                           0xadd8e6, 0.3);
   this.hoverRectangle.setOrigin(0, 0);
   this.hoverRectangle.visible = false;
 
@@ -128,7 +130,6 @@ function create() {
       avatarY = offsetY + j * cellSize;
     }
   });
-
 }
 
 function update(time) {
@@ -144,62 +145,6 @@ function update(time) {
 
   this.playerAvatar.x = avatarX;
   this.playerAvatar.y = avatarY;
-
-  this.neighborSquares.clear(true, true);
-
-  const i = (avatarX - (this.cameras.main.width - (gridSize * cellSize)) / 2) / cellSize;
-  const j = (avatarY - (this.cameras.main.height - (gridSize * cellSize)) / 2) / cellSize;
-
-  const avatarLines = getLineDirections(i, j);
   
-  const neighbors = [
-    { x: i - 1, y: j, direction: 'W' },
-    { x: i + 1, y: j, direction: 'E' },
-    { x: i, y: j - 1, direction: 'N' },
-    { x: i, y: j + 1, direction: 'S' }
-  ];
-  
-  for (const neighbor of neighbors) {
-    if (neighbor.x >= 0 && neighbor.x < gridSize && neighbor.y >= 0 && neighbor.y < gridSize) {
-      const neighborLines = getLineDirections(neighbor.x, neighbor.y);
-      
-      if (!avatarLines.includes(neighbor.direction) && !neighborLines.includes(oppositeDirection(neighbor.direction))) {
-        const square = this.add.rectangle(
-          (this.cameras.main.width - (gridSize * cellSize)) / 2 + neighbor.x * cellSize,
-          (this.cameras.main.height - (gridSize * cellSize)) / 2 + neighbor.y * cellSize,
-          cellSize,
-          cellSize,
-          0xadd8e6
-        );
-        square.setOrigin(0, 0);
-        this.neighborSquares.add(square);
-      }
-    }
-  }
 }
-
-function getLineDirections(i, j) {
-  const line1 = game.scene.keys.default.lines[2 * (i * gridSize + j)];
-  const line2 = game.scene.keys.default.lines[2 * (i * gridSize + j) + 1];
-  const angle1 = line1.angle % 360;
-  const angle2 = line2.angle % 360;
-  const directions = [];
-  
-  if (angle1 === 0 || angle2 === 90) directions.push('N');
-  if (angle1 === 90 || angle2 === 0) directions.push('E');
-  if (angle1 === 180 || angle2 === 270) directions.push('S');
-  if (angle1 === 270 || angle2 === 180) directions.push('W');
-  
-  return directions;
-}
-
-function oppositeDirection(direction) {
-  switch (direction) {
-    case 'N': return 'S';
-    case 'E': return 'W';
-    case 'S': return 'N';
-    case 'W': return 'E';
-  }
-}
-
 </script>
