@@ -2,7 +2,7 @@
 
 <script type="text/javascript">
 const minDimension = Math.min(window.innerWidth, window.innerHeight);
-const cellSize = minDimension / 12; // Adjust the divisor to fit the grid comfortably
+const cellSize = minDimension / 12; 
 
 const gridSize = 10;
 const lineLength = cellSize * 0.6;
@@ -10,6 +10,8 @@ const lineThickness = cellSize * 0.06;
 const dotSize = cellSize * 0.06;
 const padding = cellSize * 0.1;
 
+let avatarX;
+let avatarY;
 let lastRotationTime = 0;
 
 const config = {
@@ -94,27 +96,21 @@ function create() {
     }
   }
 
-  const padding = 10; // Adjust this value to change the padding around the box
+  const padding = 10; 
 
-// Adjust the size and position of the rectangle to add padding
-const avatarX = offsetX + padding;
-const avatarY = offsetY + (gridSize - 2) * cellSize + padding;
+avatarX = offsetX;
+avatarY = offsetY + (gridSize - 1) * cellSize;
+
+this.playerAvatar = this.add.rectangle(avatarX, avatarY, cellSize, cellSize, 0x000000);
+this.playerAvatar.setOrigin(0, 0);
+
 const avatarWidth = cellSize - 2 * padding;
 const avatarHeight = cellSize - 2 * padding;
 
-// Draw the player avatar as a black square, with padding
-this.add.rectangle(avatarX, avatarY, avatarWidth, avatarHeight, 0x000000).setOrigin(0, 0);
-
-
-  // Existing code for the yellow triangle avatar; you can remove this if not needed
-  this.avatar = this.add.image(offsetX + gridSize * cellSize / 2, offsetY + gridSize * cellSize / 2, 'avatar');
-
-  // Create a rectangle for hover effect, initially invisible
   this.hoverRectangle = this.add.rectangle(0, 0, cellSize, cellSize, 0xadd8e6, 0.3);
   this.hoverRectangle.setOrigin(0, 0);
   this.hoverRectangle.visible = false;
 
-  // Add a mouse move listener
   this.input.on('pointermove', pointer => {
     const x = pointer.x - offsetX;
     const y = pointer.y - offsetY;
@@ -128,21 +124,34 @@ this.add.rectangle(avatarX, avatarY, avatarWidth, avatarHeight, 0x000000).setOri
       this.hoverRectangle.visible = false;
     }
   });
+
+  this.input.on('pointerdown', pointer => {
+    const x = pointer.x - offsetX;
+    const y = pointer.y - offsetY;
+    const i = Math.floor(x / cellSize);
+    const j = Math.floor(y / cellSize);
+    if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
+      avatarX = offsetX + i * cellSize;
+      avatarY = offsetY + j * cellSize;
+    }
+  });
+
+  
 }
 
 function update(time) {
   const elapsedTime = time - lastRotationTime;
 
-  // Check if a second has passed
   if (elapsedTime >= 1000) {
-    // Rotate each line by 90 degrees
     this.lines.forEach(line => {
       line.angle += 90;
     });
 
-    // Update the last rotation time
     lastRotationTime = time;
   }
+
+  this.playerAvatar.x = avatarX;
+  this.playerAvatar.y = avatarY;
 }
 
 </script>
