@@ -16,8 +16,10 @@ let lastRotationTime = 0;
 
 const config = {
   type: Phaser.AUTO,
+
   width: window.innerWidth,
   height: window.innerHeight,
+
   scene: {
     preload: preload,
     create: create,
@@ -27,23 +29,10 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-function preload() {
-  const size = 20;
-  const canvasTexture = this.textures.createCanvas('avatar', size, Math.sqrt(3) * size / 2).source[0].image;
-  const context = canvasTexture.getContext('2d');
-  context.beginPath();
-  context.moveTo(size / 2, 0);
-  context.lineTo(size, size * Math.sqrt(3) / 2);
-  context.lineTo(0, size * Math.sqrt(3) / 2);
-  context.closePath();
-  context.strokeStyle = 'black';
-  context.lineWidth = 2;
-  context.stroke();
-  context.fillStyle = 'yellow';
-  context.fill();
-}
+function preload() {}
 
 function create() {
+
   this.cameras.main.setBackgroundColor('#ffffff');
 
   const offsetX = (this.cameras.main.width - (gridSize * cellSize)) / 2;
@@ -52,41 +41,43 @@ function create() {
   this.lines = [];
 
   for (let i = 0; i < gridSize; i++) {
-  for (let j = 0; j < gridSize; j++) {
-    const x = offsetX + i * cellSize;
-    const y = offsetY + j * cellSize;
+    for (let j = 0; j < gridSize; j++) {
+      const x = offsetX + i * cellSize;
+      const y = offsetY + j * cellSize;
 
-    const directions = ['N', 'E', 'S', 'W'];
-    const direction = directions[Phaser.Math.Between(0, 3)];
-    const color = new Phaser.Display.Color();
-    color.random(1);
+      const directions = ['N', 'E', 'S', 'W'];
+      const direction = directions[Phaser.Math.Between(0, 3)];
 
-    let line1 = this.add.line(x, y, 0, 0, 0, 0, color.color).setLineWidth(lineThickness).setOrigin(0, 0.5);
-    let line2 = this.add.line(x, y, 0, 0, 0, 0, color.color).setLineWidth(lineThickness).setOrigin(0, 0.5);
+      const color = new Phaser.Display.Color();
+      color.random(1);
 
-    switch (direction) {
-      case 'N':
-        line1.setTo(0, 0, 0, -lineLength);
-        line2.setTo(0, 0, lineLength, 0);
-        break;
-      case 'E':
-        line1.setTo(0, 0, lineLength, 0);
-        line2.setTo(0, 0, 0, lineLength);
-        break;
-      case 'S':
-        line1.setTo(0, 0, 0, lineLength);
-        line2.setTo(0, 0, -lineLength, 0);
-        break;
-      case 'W':
-        line1.setTo(0, 0, -lineLength, 0);
-        line2.setTo(0, 0, 0, -lineLength);
-        break;
+      let line1 = this.add.line(x, y, 0, 0, 0, 0, color.color).setLineWidth(lineThickness).setOrigin(0, 0.5);
+      let line2 = this.add.line(x, y, 0, 0, 0, 0, color.color).setLineWidth(lineThickness).setOrigin(0, 0.5);
+
+      switch (direction) {
+        case 'N':
+          line1.setTo(0, 0, 0, -lineLength);
+          line2.setTo(0, 0, lineLength, 0);
+          break;
+        case 'E':
+          line1.setTo(0, 0, lineLength, 0);
+          line2.setTo(0, 0, 0, lineLength);
+          break;
+        case 'S':
+          line1.setTo(0, 0, 0, lineLength);
+          line2.setTo(0, 0, -lineLength, 0);
+          break;
+        case 'W':
+          line1.setTo(0, 0, -lineLength, 0);
+          line2.setTo(0, 0, 0, -lineLength);
+          break;
+      }
+
+      this.lines.push(line1);
+      this.lines.push(line2);
+
     }
-
-    this.lines.push(line1);
-    this.lines.push(line2);
   }
-}
 
   for (let i = 0; i < gridSize; i++) {
     for (let j = 0; j < gridSize; j++) {
@@ -98,17 +89,17 @@ function create() {
 
   const padding = 10; 
 
-avatarX = offsetX;
-avatarY = offsetY + (gridSize - 1) * cellSize;
+  avatarX = offsetX;
+  avatarY = offsetY + (gridSize - 1) * cellSize;
 
-this.playerAvatar = this.add.rectangle(avatarX, avatarY, cellSize, cellSize, 0x000000);
-this.playerAvatar.setOrigin(0, 0);
+  this.neighborSquares = this.add.group();
 
-this.neighborSquares = this.add.group();
+  const avatarWidth = cellSize - 2 * padding;
+  const avatarHeight = cellSize - 2 * padding;
 
-const avatarWidth = cellSize - 2 * padding;
-const avatarHeight = cellSize - 2 * padding;
-
+  this.playerAvatar = this.add.rectangle(avatarX + padding, avatarY + padding, avatarWidth, avatarHeight, 0x000000);
+  this.playerAvatar.setOrigin(0, 0);
+  
   this.hoverRectangle = this.add.rectangle(0, 0, cellSize, cellSize, 0xadd8e6, 0.3);
   this.hoverRectangle.setOrigin(0, 0);
   this.hoverRectangle.visible = false;
@@ -138,7 +129,6 @@ const avatarHeight = cellSize - 2 * padding;
     }
   });
 
-  
 }
 
 function update(time) {
@@ -160,10 +150,8 @@ function update(time) {
   const i = (avatarX - (this.cameras.main.width - (gridSize * cellSize)) / 2) / cellSize;
   const j = (avatarY - (this.cameras.main.height - (gridSize * cellSize)) / 2) / cellSize;
 
-  // Determine the direction of the lines at the avatar's current cell
   const avatarLines = getLineDirections(i, j);
   
-  // Add neighbor squares
   const neighbors = [
     { x: i - 1, y: j, direction: 'W' },
     { x: i + 1, y: j, direction: 'E' },
@@ -173,10 +161,8 @@ function update(time) {
   
   for (const neighbor of neighbors) {
     if (neighbor.x >= 0 && neighbor.x < gridSize && neighbor.y >= 0 && neighbor.y < gridSize) {
-      // Determine the direction of the lines at the neighboring cell
       const neighborLines = getLineDirections(neighbor.x, neighbor.y);
       
-      // Check if the lines block the neighbor
       if (!avatarLines.includes(neighbor.direction) && !neighborLines.includes(oppositeDirection(neighbor.direction))) {
         const square = this.add.rectangle(
           (this.cameras.main.width - (gridSize * cellSize)) / 2 + neighbor.x * cellSize,
@@ -192,7 +178,6 @@ function update(time) {
   }
 }
 
-// Helper function to determine the direction of the lines at a given cell
 function getLineDirections(i, j) {
   const line1 = game.scene.keys.default.lines[2 * (i * gridSize + j)];
   const line2 = game.scene.keys.default.lines[2 * (i * gridSize + j) + 1];
@@ -208,7 +193,6 @@ function getLineDirections(i, j) {
   return directions;
 }
 
-// Helper function to get the opposite direction
 function oppositeDirection(direction) {
   switch (direction) {
     case 'N': return 'S';
