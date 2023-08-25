@@ -1,6 +1,3 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
-
-<script type="text/javascript">
 const minDimension = Math.min(window.innerWidth, window.innerHeight);
 const cellSize = minDimension / 12; 
 
@@ -147,4 +144,3 @@ function update(time) {
   this.playerAvatar.y = avatarY;
   
 }
-</script>
