@@ -122,9 +122,28 @@ function create() {
     const y = pointer.y - offsetY;
     const i = Math.floor(x / cellSize);
     const j = Math.floor(y / cellSize);
-    if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
+    
+    // Calculate current position in grid coordinates (with rounding to avoid floating point issues)
+    const currentI = Math.round((avatarX - offsetX) / cellSize);
+    const currentJ = Math.round((avatarY - offsetY) / cellSize);
+    
+    // Check if the clicked position is adjacent to the current position
+    const isAdjacent = (
+      (Math.abs(i - currentI) === 1 && j === currentJ) || // Horizontal adjacent
+      (Math.abs(j - currentJ) === 1 && i === currentI)    // Vertical adjacent
+    );
+    
+    // Add debugging
+    console.log('Click at grid:', i, j);
+    console.log('Current position:', currentI, currentJ);
+    console.log('Avatar position:', avatarX, avatarY);
+    console.log('Is adjacent:', isAdjacent);
+    console.log('Bounds check:', i >= 0 && i < gridSize && j >= 0 && j < gridSize);
+    
+    if (i >= 0 && i < gridSize && j >= 0 && j < gridSize && isAdjacent) {
       avatarX = offsetX + i * cellSize;
       avatarY = offsetY + j * cellSize;
+      console.log('Moving to:', avatarX, avatarY);
     }
   });
 }
