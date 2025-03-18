@@ -133,14 +133,54 @@ function create() {
       (Math.abs(j - currentJ) === 1 && i === currentI)    // Vertical adjacent
     );
     
+    // Check if there's a line between the squares
+    const hasNoLineBlocking = () => {
+      if (!isAdjacent) return false;
+      
+      // Index in the lines array for the current position
+      const currentIndex = currentJ * gridSize + currentI;
+      const lineIndex = currentIndex * 2; // Each grid cell has 2 lines
+      
+      // Determine which edge we're trying to cross
+      let direction;
+      if (i > currentI) direction = 'E'; // Moving right
+      else if (i < currentI) direction = 'W'; // Moving left
+      else if (j > currentJ) direction = 'S'; // Moving down
+      else if (j < currentJ) direction = 'N'; // Moving up
+      
+      // Check if the line at that edge is blocking the path
+      // The lines are stored in pairs, with specific orientations based on the 'direction'
+      const line1 = this.lines[lineIndex];
+      const line2 = this.lines[lineIndex + 1];
+      
+      // Calculate the angle of the lines to check if they block the movement
+      const line1Angle = (line1.angle + 360) % 360;
+      const line2Angle = (line2.angle + 360) % 360;
+      
+      // Check if the lines block the movement based on their current angles
+      switch (direction) {
+        case 'N':
+          return !((line1Angle === 0 || line1Angle === 180) || (line2Angle === 0 || line2Angle === 180));
+        case 'E':
+          return !((line1Angle === 90 || line1Angle === 270) || (line2Angle === 90 || line2Angle === 270));
+        case 'S':
+          return !((line1Angle === 0 || line1Angle === 180) || (line2Angle === 0 || line2Angle === 180));
+        case 'W':
+          return !((line1Angle === 90 || line1Angle === 270) || (line2Angle === 90 || line2Angle === 270));
+        default:
+          return false;
+      }
+    };
+    
     // Add debugging
     console.log('Click at grid:', i, j);
     console.log('Current position:', currentI, currentJ);
     console.log('Avatar position:', avatarX, avatarY);
     console.log('Is adjacent:', isAdjacent);
     console.log('Bounds check:', i >= 0 && i < gridSize && j >= 0 && j < gridSize);
+    console.log('No line blocking:', hasNoLineBlocking());
     
-    if (i >= 0 && i < gridSize && j >= 0 && j < gridSize && isAdjacent) {
+    if (i >= 0 && i < gridSize && j >= 0 && j < gridSize && isAdjacent && hasNoLineBlocking()) {
       avatarX = offsetX + i * cellSize;
       avatarY = offsetY + j * cellSize;
       console.log('Moving to:', avatarX, avatarY);
